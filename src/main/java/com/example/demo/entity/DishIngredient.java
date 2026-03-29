@@ -1,10 +1,14 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import java.util.Objects;
 
 public class DishIngredient {
     private int id;
     private Ingredient ingredient;
+    @JsonIgnore
     private Dish dish;
     private double quantity;
     private Unit unit;

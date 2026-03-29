@@ -1,5 +1,7 @@
 package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -9,6 +11,7 @@ public class Dish {
     private Double price;
     private String name;
     private DishTypeEnum dishType;
+    @JsonManagedReference
     private List<DishIngredient> dishIngredients;
 
     public Integer getId() {
