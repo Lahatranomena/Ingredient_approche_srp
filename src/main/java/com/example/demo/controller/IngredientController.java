@@ -28,12 +28,13 @@ public class IngredientController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Ingredient> findById(@PathVariable Integer id){
+    public ResponseEntity<?> findById(@PathVariable Integer id){
         try {
             return ResponseEntity.ok(ingredientService.findById(id));
         }
         catch (RuntimeException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Ingredient.id = "+id+" is not found");
         }
     }
 
