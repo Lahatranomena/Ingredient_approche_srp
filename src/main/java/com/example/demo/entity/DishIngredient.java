@@ -1,0 +1,93 @@
+package com.example.demo.entity;
+
+import java.util.Objects;
+
+public class DishIngredient {
+    private int id;
+    private Ingredient ingredient;
+    private Dish dish;
+    private double quantity;
+    private Unit unit;
+
+    public DishIngredient(int id, Ingredient ingredient, double quantity, Unit unit) {
+        this.id = id;
+        this.ingredient = ingredient;
+        this.quantity = quantity;
+        this.unit = unit;
+    }
+
+    public DishIngredient(int id, Dish dish, Ingredient ingredient, Double quantity, Unit unit) {
+        this.id = id;
+        this.ingredient = ingredient;
+        this.quantity = quantity;
+        this.unit = unit;
+        this.dish = dish;
+    }
+
+
+    public DishIngredient() {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Dish getDish() {
+        return dish;
+    }
+
+    public void setDish(Dish dish) {
+        this.dish = dish;
+    }
+
+
+    public Ingredient getIngredient() {
+        return ingredient;
+    }
+
+    public void setIngredient(Ingredient ingredient) {
+        this.ingredient = ingredient;
+    }
+
+    public Double getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Double quantity) {
+        this.quantity = quantity;
+    }
+
+    public Unit getUnit() {
+        return unit;
+    }
+
+    public void setUnit(Unit unit) {
+        this.unit = unit;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof DishIngredient that)) return false;
+        return id == that.id && Objects.equals(dish, that.dish) && Objects.equals(ingredient, that.ingredient) && Objects.equals(quantity, that.quantity) && unit == that.unit;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, dish, ingredient, quantity, unit);
+    }
+
+    @Override
+    public String toString() {
+        return "DishIngredient{" +
+                "id=" + id +
+                ", ingredient=" + ingredient +
+                ", quantity=" + quantity +
+                ", unit=" + unit +
+                '}';
+    }
+}
