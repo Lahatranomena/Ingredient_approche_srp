@@ -72,11 +72,13 @@ public class DishRepository {
         List<DishIngredient> dishIngredients = new ArrayList<>();
         try (Connection connection = dataSource.getConnection()) {
             PreparedStatement ps = connection.prepareStatement("""
-                SELECT dishingredient.id_ingredient as id, ingredient.name as name, 
-                ingredient.price as price, ingredient.category as category
-                FROM dishingredient 
-                JOIN ingredient ON dishingredient.id_ingredient = ingredient.id
-                WHERE id_dish = ?
+                SELECT dishingredient.id_ingredient as id, ingredient.name as name,
+                       ingredient.price as price, dishingredient.id as id_dishingredient,
+                        dishingredient.quantity_required as quantity_required,
+                       dishingredient.unit as unit, ingredient.category as category
+                FROM dishingredient
+                         JOIN ingredient ON dishingredient.id_ingredient = ingredient.id
+                WHERE id_dish = ?;
                 """);
             ps.setInt(1, dishId);
             ResultSet rs = ps.executeQuery();
@@ -91,7 +93,9 @@ public class DishRepository {
                 if (category != null) {
                     ingredient.setCategory(CategoryEnum.valueOf(category));
                 }
-
+                dishIngredient.setId(rs.getInt("id_dishingredient"));
+                dishIngredient.setQuantity(rs.getDouble("quantity_required"));
+                dishIngredient.setUnit(Unit.valueOf(rs.getString("unit")));
                 dishIngredient.setIngredient(ingredient);
                 dishIngredients.add(dishIngredient);
             }
