@@ -100,7 +100,7 @@ public class IngredientRepository {
                 SELECT unit,
                     SUM(CASE WHEN type = 'OUT' THEN -quantity ELSE quantity END) AS actual_quantity
                 FROM stock_movement
-                WHERE id_ingredient = ? AND creation_datetime <= ?
+                WHERE id_ingredient = ? AND creation_datetime <= ? AND unit = ?
                 GROUP BY unit
                 """);
             ps.setInt(1, ingredientId);
