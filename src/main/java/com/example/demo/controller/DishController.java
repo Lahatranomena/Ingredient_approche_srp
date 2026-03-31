@@ -47,8 +47,9 @@ public class DishController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createDishes(@RequestBody List<DishCreateRequest> requests) {
+    public ResponseEntity<?> createDish(@RequestBody DishCreateRequest request) {
         try {
+            List<DishCreateRequest> requests = List.of(request);
             List<Dish> createdDishes = dishService.createDishes(requests);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdDishes);
         } catch (IllegalArgumentException e) {
