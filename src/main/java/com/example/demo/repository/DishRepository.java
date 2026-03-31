@@ -45,25 +45,25 @@ public class DishRepository {
         }
     }
 
-    public Dish findById(Integer id){
+    public Dish findById(Integer id) {
         try (Connection connection = dataSource.getConnection()) {
             PreparedStatement ps = connection.prepareStatement("""
-                    select id, name, dish_type, price from dish where id = ?;
-                    """);
+            SELECT id, name, dish_type, price FROM dish WHERE id = ?
+            """);
+            ps.setInt(1, id);
 
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 Dish dish = new Dish();
-                dish.setId(rs.getInt(id));
+                dish.setId(rs.getInt("id"));
                 dish.setName(rs.getString("name"));
                 dish.setDishType(DishTypeEnum.valueOf(rs.getString("dish_type")));
                 dish.setPrice(rs.getDouble("price"));
-
+                dish.setDishIngredients(findDishIngredientsByDishId(dish.getId()));
                 return dish;
             }
-            throw new RuntimeException("Dish.id = "+id+" not found");
-        }
-        catch (SQLException e){
+            throw new RuntimeException("Dish.id=" + id + " is not found");
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
@@ -72,11 +72,13 @@ public class DishRepository {
         List<DishIngredient> dishIngredients = new ArrayList<>();
         try (Connection connection = dataSource.getConnection()) {
             PreparedStatement ps = connection.prepareStatement("""
-                SELECT dishingredient.id_ingredient as id, ingredient.name as name, 
-                ingredient.price as price, ingredient.category as category
-                FROM dishingredient 
-                JOIN ingredient ON dishingredient.id_ingredient = ingredient.id
-                WHERE id_dish = ?
+                SELECT dishingredient.id_ingredient as id, ingredient.name as name,
+                       ingredient.price as price, dishingredient.id as id_dishingredient,
+                        dishingredient.quantity_required as quantity_required,
+                       dishingredient.unit as unit, ingredient.category as category
+                FROM dishingredient
+                         JOIN ingredient ON dishingredient.id_ingredient = ingredient.id
+                WHERE id_dish = ?;
                 """);
             ps.setInt(1, dishId);
             ResultSet rs = ps.executeQuery();
@@ -91,7 +93,9 @@ public class DishRepository {
                 if (category != null) {
                     ingredient.setCategory(CategoryEnum.valueOf(category));
                 }
-
+                dishIngredient.setId(rs.getInt("id_dishingredient"));
+                dishIngredient.setQuantity(rs.getDouble("quantity_required"));
+                dishIngredient.setUnit(Unit.valueOf(rs.getString("unit")));
                 dishIngredient.setIngredient(ingredient);
                 dishIngredients.add(dishIngredient);
             }
@@ -110,21 +114,24 @@ public class DishRepository {
             deletePs.setInt(1, dishId);
             deletePs.executeUpdate();
 
-            String insertSql = """
+            if (!ingredients.isEmpty()) {
+                String insertSql = """
                 INSERT INTO dishingredient (id_dish, id_ingredient, quantity_required, unit)
                 SELECT ?, i.id, 1, 'KG'
                 FROM ingredient i WHERE i.id = ?
                 """;
-            PreparedStatement insertPs = conn.prepareStatement(insertSql);
-            for (Ingredient ingredient : ingredients) {
-                insertPs.setInt(1, dishId);
-                insertPs.setInt(2, ingredient.getId());
-                insertPs.addBatch();
+                PreparedStatement insertPs = conn.prepareStatement(insertSql);
+                for (Ingredient ingredient : ingredients) {
+                    insertPs.setInt(1, dishId);
+                    insertPs.setInt(2, ingredient.getId());
+                    insertPs.addBatch();
+                }
+                insertPs.executeBatch();
             }
-            insertPs.executeBatch();
-            conn.commit();
 
+            conn.commit();
             return findById(dishId);
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

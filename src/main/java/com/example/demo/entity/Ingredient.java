@@ -8,9 +8,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
-import static java.time.Instant.now;
-
-import static java.time.LocalTime.now;
 
 public class Ingredient {
     private Integer id;
@@ -30,8 +27,6 @@ public class Ingredient {
         this.stockMovementList = stockMovementList;
     }
 
-    public Ingredient(int i, String chocolat, CategoryEnum categoryEnum, double v) {
-    }
 
     public Integer getId() {
         return id;

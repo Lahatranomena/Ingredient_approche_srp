@@ -11,7 +11,6 @@ public class Dish {
     private Double price;
     private String name;
     private DishTypeEnum dishType;
-    @JsonManagedReference
     private List<DishIngredient> dishIngredients;
 
     public Integer getId() {
