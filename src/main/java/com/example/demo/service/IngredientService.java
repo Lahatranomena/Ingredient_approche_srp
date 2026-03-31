@@ -29,6 +29,6 @@ public class IngredientService {
 
     public StockValue getStockValue(Integer id, Instant instant, Unit unit){
         ingredientRepository.findById(id);
-        return ingredientRepository.getStockValue(instant, id);
+        return ingredientRepository.getStockValue(instant, id, unit);
     }
 }

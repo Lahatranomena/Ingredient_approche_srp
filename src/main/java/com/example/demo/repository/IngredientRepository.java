@@ -94,25 +94,31 @@ public class IngredientRepository {
         }
     }
 
-    public StockValue getStockValue(Instant t, Integer ingredientId) {
+    public StockValue getStockValue(Instant t, Integer ingredientId, Unit unit) {
         try (Connection conn = dataSource.getConnection()) {
             PreparedStatement ps = conn.prepareStatement("""
-                SELECT unit,
-                    SUM(CASE WHEN type = 'OUT' THEN -quantity ELSE quantity END) AS actual_quantity
-                FROM stock_movement
-                WHERE id_ingredient = ? AND creation_datetime <= ? AND unit = ?
-                GROUP BY unit
-                """);
+            SELECT unit,
+                SUM(CASE WHEN type = 'OUT' THEN -quantity ELSE quantity END) AS actual_quantity
+            FROM stock_movement
+            WHERE id_ingredient = ? AND creation_datetime <= ? AND unit = ?::unit_type
+            GROUP BY unit
+            """);
+
             ps.setInt(1, ingredientId);
             ps.setTimestamp(2, new Timestamp(t.toEpochMilli()));
+            ps.setString(3, unit.name());
+
             ResultSet rs = ps.executeQuery();
+
             if (rs.next()) {
                 StockValue sv = new StockValue();
                 sv.setUnit(Unit.valueOf(rs.getString("unit")));
                 sv.setQuantity(rs.getDouble("actual_quantity"));
                 return sv;
             }
+
             throw new RuntimeException("Ingredient.id=" + ingredientId + " is not found");
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
