@@ -3,6 +3,7 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.Dish;
 import com.example.demo.entity.Ingredient;
+import com.example.demo.repository.DishRepository;
 import com.example.demo.service.DishService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,9 @@ public class DishController {
     public DishController(DishService dishService) {
         this.dishService = dishService;
     }
+
+    private DishRepository dishRepository;
+
 
     @GetMapping
     public ResponseEntity<List<Dish>> getAllDishes(){
@@ -40,5 +44,14 @@ public class DishController {
         catch (RuntimeException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
+    }
+
+    @GetMapping("/all")
+    public List<Dish> getDishes(
+            @RequestParam(required = false) Double priceUnder,
+            @RequestParam(required = false) Double priceOver,
+            @RequestParam(required = false) String name
+    ) {
+        return dishRepository.findFiltered(priceUnder, priceOver, name);
     }
 }

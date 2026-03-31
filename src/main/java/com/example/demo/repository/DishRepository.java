@@ -136,4 +136,44 @@ public class DishRepository {
             throw new RuntimeException(e);
         }
     }
+
+    public List<Dish> findFiltered(Double priceUnder, Double priceOver, String name) {
+        StringBuilder sql = new StringBuilder("SELECT id, name, dish_type, price FROM dish WHERE 1=1");
+        List<Object> params = new ArrayList<>();
+
+        if (priceUnder != null) {
+            sql.append(" AND price < ?");
+            params.add(priceUnder);
+        }
+        if (priceOver != null) {
+            sql.append(" AND price > ?");
+            params.add(priceOver);
+        }
+        if (name != null) {
+            sql.append(" AND LOWER(name) LIKE ?");
+            params.add("%" + name.toLowerCase() + "%");
+        }
+
+        List<Dish> dishes = new ArrayList<>();
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
+            for (int i = 0; i < params.size(); i++) {
+                ps.setObject(i + 1, params.get(i));
+            }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Dish dish = new Dish();
+                dish.setId(rs.getInt("id"));
+                dish.setName(rs.getString("name"));
+                dish.setDishType(DishTypeEnum.valueOf(rs.getString("dish_type")));
+                dish.setPrice(rs.getDouble("price"));
+                dishes.add(dish);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return dishes;
+    }
 }
