@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 
 import com.example.demo.entity.Dish;
+import com.example.demo.entity.DishCreateRequest;
 import com.example.demo.entity.Ingredient;
 import com.example.demo.repository.DishRepository;
 import com.example.demo.service.DishService;
@@ -9,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -20,8 +22,6 @@ public class DishController {
     public DishController(DishService dishService) {
         this.dishService = dishService;
     }
-
-    private DishRepository dishRepository;
 
 
     @GetMapping
@@ -46,12 +46,27 @@ public class DishController {
         }
     }
 
+    @PostMapping
+    public ResponseEntity<?> createDishes(@RequestBody List<DishCreateRequest> requests) {
+        try {
+            List<Dish> createdDishes = dishService.createDishes(requests);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdDishes);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("{\"error\":\"" + e.getMessage() + "\"}");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("{\"error\":\"" + e.getMessage() + "\"}");
+        }
+    }
+
     @GetMapping("/all")
-    public List<Dish> getDishes(
+    public ResponseEntity<List<Dish>> getDishes(
             @RequestParam(required = false) Double priceUnder,
             @RequestParam(required = false) Double priceOver,
             @RequestParam(required = false) String name
     ) {
-        return dishRepository.findFiltered(priceUnder, priceOver, name);
+        List<Dish> dishes = dishService.findFiltered(priceUnder, priceOver, name);
+        return ResponseEntity.ok(dishes);
     }
 }

@@ -176,4 +176,46 @@ public class DishRepository {
         }
         return dishes;
     }
+
+    public Dish save(Dish dish) throws SQLException {
+        try (Connection conn = dataSource.getConnection()) {
+            PreparedStatement check = conn.prepareStatement("SELECT COUNT(*) FROM dish WHERE name = ?");
+            check.setString(1, dish.getName());
+            ResultSet rs = check.executeQuery();
+            if (rs.next() && rs.getInt(1) > 0) {
+                throw new IllegalArgumentException("Dish.name=" + dish.getName() + " already exists");
+            }
+
+            PreparedStatement insert = conn.prepareStatement(
+                    "INSERT INTO dish (name, dish_type, price) VALUES (?, ?, ?)",
+                    PreparedStatement.RETURN_GENERATED_KEYS
+            );
+            insert.setString(1, dish.getName());
+            insert.setString(2, dish.getDishType().name());
+            insert.setDouble(3, dish.getPrice());
+            insert.executeUpdate();
+
+            ResultSet keys = insert.getGeneratedKeys();
+            if (keys.next()) {
+                dish.setId(keys.getInt(1));
+            }
+
+            return dish;
+        }
+    }
+
+    public boolean existsByName(String name) {
+        String sql = "SELECT COUNT(*) FROM dish WHERE LOWER(name) = LOWER(?)";
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, name);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+            return false;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
