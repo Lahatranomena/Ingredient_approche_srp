@@ -22,20 +22,20 @@ paths:
                   $ref: '#/components/schemas/Ingredient'
                 example:
                   - id: 1
+                    nom: Laitue
+                    categorie: Vegetable
+                    prix: 800.00
+                  - id: 2
                     nom: Tomate
                     categorie: Vegetable
-                    prix: 1.80
-                  - id: 2
-                    nom: Pomme
-                    categorie: Vegetable
-                    prix: 0.90
+                    prix: 600.00
         '500':
           description: Erreur interne du serveur
           content:
             application/json:
               schema:
                 type: string
-              example: "Error to recover list of ingredients"
+              example: "Erreur du chargement de la liste des ingrédients"
 
   /ingredients/{id}:
     get:
@@ -66,7 +66,8 @@ paths:
             application/json:
               schema:
                 type: string
-              example: "Ingredient.id={2} is not found"
+              example: "Ingredient.id={2} n'est pas trouvé"
+
 
   /ingredients/{id}/stock:
     get:
@@ -92,7 +93,7 @@ paths:
           description: Unité du stock
           schema:
             type: string
-            enum: [ PCS, KG, L ]
+            enum: [PCS, KG, L]
             example: KG
       responses:
         '200':
@@ -119,6 +120,40 @@ paths:
                 type: string
               example: "Ingredient.id=2 is not found"
 
+  /dishes:
+    get:
+      summary: Retourne la liste des plats
+      responses:
+        '200':
+          description: Liste des plats enregistrés en base
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Dish'
+              example:
+                - id: 23
+                  nom: Pain choco
+                  prixPlat: 1000.00
+                  ingredients:
+                    - id: 1
+                      nom: Laitue
+                      categorie: Vegetable
+                      prix: 800.00
+                    - id: 2
+                      nom: Tomate
+                      categorie: Vegetable
+                      prix: 600.00
+        '500':
+          description: Erreur interne du serveur
+          content:
+            application/json:
+              schema:
+                type: string
+              example: "Error to recover list of dishes"
+
+
 
 components:
   schemas:
@@ -143,8 +178,26 @@ components:
       properties:
         unit:
           type: string
-          enum: [ PCS, KG, L ]
+          enum: [PCS, KG, L]
           description: Unité du stock
         valeur:
           type: number
           description: Valeur du stock
+
+    Dish:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Identifiant
+        nom:
+          type: string
+          description: Nom du plat
+        prixPlat:
+          type: number
+          description: Prix de vente
+        ingredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ingredient'
+          description: Liste des ingrédients
