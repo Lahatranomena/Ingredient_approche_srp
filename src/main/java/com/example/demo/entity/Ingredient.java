@@ -1,6 +1,8 @@
 package com.example.demo.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +16,7 @@ public class Ingredient {
     private String name;
     private CategoryEnum category;
     private Double price;
+    @JsonIgnore
     private List<StockMovement> stockMovementList;
 
     public Ingredient() {

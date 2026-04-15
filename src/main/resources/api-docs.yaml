@@ -1,0 +1,57 @@
+openapi: 3.0.3
+info:
+  title: Ingredients API
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000/v1
+    description: Local développement
+
+paths:
+  /ingredients:
+    get:
+      summary: Liste des ingrédients
+      responses:
+        '200':
+          description: Retourne la liste des ingrédients enregistrés
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ingredient'
+                example:
+                  - id: 1
+                    nom: Tomate
+                    categorie: Vegetable
+                    prix: 1.80
+                  - id: 2
+                    nom: Pomme
+                    categorie: Vegetable
+                    prix: 0.90
+        '500':
+          description: Erreur interne du serveur
+          content:
+            application/json:
+              schema:
+                type: string
+              example: "Erreur du chargement de la liste des ingrédients"
+
+
+components:
+  schemas:
+    Ingredient:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Identifiant de l'ingrédient
+        nom:
+          type: string
+          description: Nom de l'ingrédient
+        categorie:
+          type: string
+          description: Catégorie de l'ingrédient
+        prix:
+          type: number
+          description: Prix de l'ingrédient
