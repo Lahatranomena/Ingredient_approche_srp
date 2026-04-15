@@ -23,11 +23,11 @@ paths:
                 example:
                   - id: 1
                     name: Laituer
-                    category: Vegetable
+                    category: VEGETABLE
                     price: 800.00
                   - id: 2
                     name: Tomate
-                    category: Vegetable
+                    category: VEGETABLE
                     price: 600.00
         '500':
           description: Erreur interne du serveur
@@ -58,7 +58,7 @@ paths:
               example:
                 - id: 2
                   nom: Tomate
-                  categorie: Vegetable
+                  categorie: VEGETABLE
                   prix: 600.00
         '404':
           description: Erreur lors du chargement de l'ingrédient
@@ -139,11 +139,11 @@ paths:
                   dishIngredients:
                     - id: 1
                       name: Laitue
-                      category: Vegetable
+                      category: VEGETABLE
                       price: 800.00
                     - id: 2
                       name: Tomate
-                      category: Vegetable
+                      category: VEGETABLE
                       price: 600.00
         '500':
           description: Erreur interne du serveur
@@ -176,11 +176,11 @@ paths:
             example:
               - id: 1
                 name: Laitue
-                category: Vegetable
+                category: VEGETABLE
                 price: 800.00
               - id: 2
                 name: Tomate
-                category: Vegetable
+                category: VEGETABLE
                 price: 600.00
       responses:
         '200':
@@ -196,7 +196,7 @@ paths:
                 ingredients:
                   - id: 1
                     name: Tomate
-                    category: Vegetable
+                    category: VEGETABLE
                     price: 1.50
         '400':
           description: Corps de requête manquant
