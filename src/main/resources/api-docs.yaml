@@ -37,6 +37,36 @@ paths:
                 type: string
               example: "Erreur du chargement de la liste des ingrédients"
 
+  /ingredients/{id}:
+    get:
+      summary: Récupération d'un ingrédient
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identifiant unique de l'ingrédient
+          schema:
+            type: integer
+            example: 2
+      responses:
+        '200':
+          description: Ingredient récupéré
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ingredient'
+              example:
+                - id: 2
+                  nom: Poulet
+                  categorie: Animal
+                  prix: 56.2
+        '404':
+          description: Erreur lors du chargement de l'ingrédient
+          content:
+            application/json:
+              schema:
+                type: string
+              example: "Ingredient.id={2} n'est pas trouvé"
 
 components:
   schemas:
