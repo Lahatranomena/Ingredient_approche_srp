@@ -63,6 +63,8 @@ public class IngredientRepository {
                 ingredient.setName(rs.getString("name"));
                 ingredient.setPrice(rs.getDouble("price"));
                 ingredient.setCategory(CategoryEnum.valueOf(rs.getString("category")));
+
+                list.add(ingredient);
             }
             return list;
         } catch (SQLException e) {

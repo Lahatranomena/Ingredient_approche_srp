@@ -4,7 +4,7 @@ info:
   version: 1.0.0
 
 servers:
-  - url: http://localhost:3000/v1
+  - url: http://localhost:8080
     description: Local développement
 
 paths:
@@ -22,13 +22,13 @@ paths:
                   $ref: '#/components/schemas/Ingredient'
                 example:
                   - id: 1
-                    nom: Tomate
-                    categorie: Vegetable
-                    prix: 1.80
+                    name: Laituer
+                    category: VEGETABLE
+                    price: 800.00
                   - id: 2
-                    nom: Pomme
-                    categorie: Vegetable
-                    prix: 0.90
+                    name: Tomate
+                    category: VEGETABLE
+                    price: 600.00
         '500':
           description: Erreur interne du serveur
           content:
@@ -36,6 +36,182 @@ paths:
               schema:
                 type: string
               example: "Erreur du chargement de la liste des ingrédients"
+
+  /ingredients/{id}:
+    get:
+      summary: Récupération d'un ingrédient
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identifiant unique de l'ingrédient
+          schema:
+            type: integer
+            example: 2
+      responses:
+        '200':
+          description: Ingredient récupéré
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ingredient'
+              example:
+                - id: 2
+                  nom: Tomate
+                  categorie: VEGETABLE
+                  prix: 600.00
+        '404':
+          description: Erreur lors du chargement de l'ingrédient
+          content:
+            application/json:
+              schema:
+                type: string
+              example: "Ingredient.id={2} n'est pas trouvé"
+
+
+  /ingredients/{id}/stock:
+    get:
+      summary: Retourne le stock d'un ingrédient
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identifiant de l'ingrédient
+          schema:
+            type: integer
+            example: 2
+        - name: at
+          in: query
+          required: true
+          description: Moment auquel récupérer le stock
+          schema:
+            type: string
+            example: "2024-01-15T10:00:00Z"
+        - name: unit
+          in: query
+          required: true
+          description: Unité du stock
+          schema:
+            type: string
+            enum: [PCS, KG, L]
+            example: KG
+      responses:
+        '200':
+          description: Stock trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stock'
+              example:
+                unit: KG
+                valeur: 25.5
+        '400':
+          description: Paramètre manquant
+          content:
+            application/json:
+              schema:
+                type: string
+              example: "Either mandatory query parameter `at` or `unit` is not provided."
+        '404':
+          description: Ingrédient non trouvé
+          content:
+            application/json:
+              schema:
+                type: string
+              example: "Ingredient.id=2 is not found"
+
+  /dishes:
+    get:
+      summary: Retourne la liste des plats
+      responses:
+        '200':
+          description: Liste des plats enregistrés en base
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Dish'
+              example:
+                - id: 23
+                  name: Pain choco
+                  price: 1000.00
+                  dishIngredients:
+                    - id: 1
+                      name: Laitue
+                      category: VEGETABLE
+                      price: 800.00
+                    - id: 2
+                      name: Tomate
+                      category: VEGETABLE
+                      price: 600.00
+        '500':
+          description: Erreur interne du serveur
+          content:
+            application/json:
+              schema:
+                type: string
+              example: "Error to recover list of dishes"
+
+  /dishes/{id}/ingredients:
+    put:
+      summary: Associer ou dissocier des ingrédients à un plat
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identifiant du plat
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        description: Liste des ingrédients à associer ou dissocier
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Ingredient'
+            example:
+              - id: 1
+                name: Laitue
+                category: VEGETABLE
+                price: 800.00
+              - id: 2
+                name: Tomate
+                category: VEGETABLE
+                price: 600.00
+      responses:
+        '200':
+          description: Ingrédients mis à jour avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dish'
+              example:
+                id: 1
+                nom: Pizza
+                price: 12.50
+                ingredients:
+                  - id: 1
+                    name: Tomate
+                    category: VEGETABLE
+                    price: 1.50
+        '400':
+          description: Corps de requête manquant
+          content:
+            application/json:
+              schema:
+                type: string
+              example: "Request body is mandatory and must not be empty."
+        '404':
+          description: Plat non trouvé
+          content:
+            application/json:
+              schema:
+                type: string
+              example: "Dish.id=1 is not found"
 
 
 components:
@@ -46,12 +222,43 @@ components:
         id:
           type: integer
           description: Identifiant de l'ingrédient
-        nom:
+        name:
           type: string
           description: Nom de l'ingrédient
-        categorie:
+        category:
           type: string
           description: Catégorie de l'ingrédient
-        prix:
+          enum: [VEGETABLE, FRUIT, ANIMAL, OTHER]
+        price:
           type: number
+          format: double
           description: Prix de l'ingrédient
+
+    Stock:
+      type: object
+      properties:
+        unit:
+          type: string
+          enum: [PCS, KG, L]
+          description: Unité du stock
+        valeur:
+          type: number
+          description: Valeur du stock
+
+    Dish:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Identifiant
+        name:
+          type: string
+          description: Nom du plat
+        price:
+          type: number
+          description: Prix de vente
+        dishIngredients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ingredient'
+          description: Liste des ingrédients
